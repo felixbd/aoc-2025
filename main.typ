@@ -4,18 +4,27 @@
 #import "@preview/theorion:0.3.3": cosmos, caution-box, warning-box, remark, important-box
 #import cosmos.fancy: *
 
+// #import "@preview/zebraw:0.5.5": zebraw
+#import "@preview/zebraw:0.6.1": *
+#show: zebraw
+
+
 #let shadowed(..args) = shadowed-original(
   radius: 4pt, inset: 12pt, fill: white, ..args
 )
 
 #set text(font:
   (
-    "Fira Sans",
-    "Atkinson Hyperlegible Next",
-    "Atkinson Hyperlegible",
+    // "Fira Sans",
+    // "Atkinson Hyperlegible Next",
+    // "Atkinson Hyperlegible",
     "Libertinus Serif"
   )
 )
+
+// #show math.equation: set text(font: "Fira Math")
+
+#show raw: set text(font: "Fira Code") 
 
 #set par(justify: true)
 
@@ -35,7 +44,7 @@
 
 #set text(lang: "en", region: "gb")
 
-#let is-draft = true
+#let is-draft = false
 
 #set par.line(numbering: if is-draft { "1" } else { none })
 
@@ -64,9 +73,95 @@
 
 == day 1
 
-=== python
 
-```py
+=== Problem summary
+
+Given a *sequence* of dial *rotations* on a *circular scale from 0 to 99*, 
+*starting at* position *50*, determine *how often* the dial *reaches position 0* 
+after applying each rotation in order.
+
+
+
+=== Mathematical formulation
+
+
+
+- Let the dial positions be elements of the cyclic group $ZZ_(100)$.  
+- Let the initial position be $x_0 = 50$.  
+- Let the sequence of $n$ rotations be $(d_i, k_i)$ with $d_i in \{L, R\}$ and $k_i in  NN$.
+
+#let signed-rotation = [
+  Define the signed rotation
+  $ s_i = cases(
+    -k_i "if" d_i = L,
+    #h(3mm) k_i "if" d_i = R,
+  ) $
+]
+
+#signed-rotation
+
+#let pos-update = [
+  and the position update
+  
+  $ x_i equiv x_(i-1) + s_i med (mod med 100), quad i = 1, dots, n. $
+]
+
+#pos-update
+
+#let number-of-indices = [
+  The password is the number of indices $i$ for which the dial reaches zero
+  $ P = |\{i in \{1, dots, n\}: x_i = 0 \}|. $
+]
+
+#number-of-indices
+
+
+#[
+  #set text(lang: "de", region: "at")
+
+  === Mathematische Formulierung
+
+  Die Drehscheibe besitzt die Positionen des zyklischen Raums $ZZ_(100)$.  
+  Der Anfangswert ist $x_0 = 50$.  
+
+  Die Eingabe sei eine Folge von ganzen Zahlen $r_1, r_2, dots, r_n$,  
+  wobei jede Zahl bereits ein Vorzeichen trägt.  
+  Ein Eintrag ist negativ, falls die ursprüngliche Richtung L war,  
+  und positiv, falls die ursprüngliche Richtung R war.
+
+  Die Aktualisierung der Position erfolgt durch
+  $
+  x_i equiv x_(i-1) + r_i med (mod med 100)
+  quad "für" i = 1, dots, n.
+  $
+
+  Das Passwort ergibt sich aus der Anzahl der Schritte, in denen die Position
+  den Wert null annimmt:
+  $
+  P = |\{i in \{1, dots, n\}: x_i = 0 \}|.
+  $
+
+]
+
+
+
+=== Python3
+
+#zebraw(
+  // numbering-separator: true,
+  comment-flag: $~~>$,
+  // highlight-lines: range(41, 52) + range(85, 92),
+
+   highlight-lines: (
+    (31, signed-rotation),
+    (35, pos-update),
+    (37, number-of-indices),
+    ..range(33, 39),
+  ),
+
+
+)[
+```python
 >>> from main import xs
 >>> 
 >>> xs
@@ -98,19 +193,6 @@
 >>> 
 >>> list( map(int, xs.replace("L", "-").replace("R", "+").split())  )
 [-68, -30, 48, -5, 60, -55, -1, -99, 14, -82]
->>> 
->>> temp = 50
->>> for r in map(int, xs.replace("L", "-").replace("R", "+").split()):
-...     temp
-KeyboardInterrupt
->>> 
-KeyboardInterrupt
->>> 
->>> 
->>> temp = 50
->>> count = 0
->>>
->>> 
 >>> 
 >>> for r in map(int, xs.replace("L", "-").replace("R", "+").split()):
 ...     print(temp)
@@ -162,9 +244,10 @@ KeyboardInterrupt
 >>> 
 >>>
 ```
+]
 
 
-#pagebreak(weak: true)
+// #pagebreak(weak: true)
 
 === typst
 
@@ -178,7 +261,7 @@ KeyboardInterrupt
   result.at(1)
 }
 
-#shadowed[
+#shadowed(clip: true)[
 ```typst
 #let count-zeros(xs) = {
   let steps = xs.replace("L", "-").replace("R", "+").split().map(int)
