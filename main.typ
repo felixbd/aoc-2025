@@ -82,13 +82,6 @@ after applying each rotation in order.
 
 
 
-=== Mathematical formulation
-
-
-
-- Let the dial positions be elements of the cyclic group $ZZ_(100)$.  
-- Let the initial position be $x_0 = 50$.  
-- Let the sequence of $n$ rotations be $(d_i, k_i)$ with $d_i in \{L, R\}$ and $k_i in  NN$.
 
 #let signed-rotation = [
   Define the signed rotation
@@ -98,23 +91,36 @@ after applying each rotation in order.
   ) $
 ]
 
-#signed-rotation
-
 #let pos-update = [
   and the position update
-  
+
   $ x_i equiv x_(i-1) + s_i med (mod med 100), quad i = 1, dots, n. $
 ]
-
-#pos-update
 
 #let number-of-indices = [
   The password is the number of indices $i$ for which the dial reaches zero
   $ P = |\{i in \{1, dots, n\}: x_i = 0 \}|. $
 ]
 
+
+#align(center)[#shadowed(clip: true)[
+#set align(left)
+
+=== Mathematical formulation
+
+
+
+- Let the dial positions be elements of the cyclic group $ZZ_(100)$.  
+- Let the initial position be $x_0 = 50$.  
+- Let the sequence of $n$ rotations be $(d_i, k_i)$ with $d_i in \{L, R\}$ and $k_i in  NN$.
+
+#signed-rotation
+
+#pos-update
+
 #number-of-indices
 
+]]
 
 #[
   #set text(lang: "de", region: "at")
@@ -261,7 +267,6 @@ after applying each rotation in order.
   result.at(1)
 }
 
-#shadowed(clip: true)[
 ```typst
 #let count-zeros(xs) = {
   let steps = xs.replace("L", "-").replace("R", "+").split().map(int)
@@ -273,7 +278,7 @@ after applying each rotation in order.
   result.at(1)
 }
 ```
-]
+
 
 ```typst
 #count-zeros("L68 L30 R48 L5 R60 L55 L1 L99 R14 L82")
