@@ -6,7 +6,7 @@
 
 // #import "@preview/zebraw:0.5.5": zebraw
 #import "@preview/zebraw:0.6.1": *
-#show: zebraw
+// #show: zebraw
 
 
 #let shadowed(..args) = shadowed-original(
@@ -122,6 +122,7 @@ after applying each rotation in order.
 
 ]]
 
+// #align(center)[#shadowed(clip: true)[ #set align(left)
 #[
   #set text(lang: "de", region: "at")
 
@@ -147,6 +148,7 @@ after applying each rotation in order.
   P = |\{i in \{1, dots, n\}: x_i = 0 \}|.
   $
 
+// ]]
 ]
 
 
@@ -160,9 +162,9 @@ after applying each rotation in order.
 
    highlight-lines: (
     (31, signed-rotation),
-    (35, pos-update),
-    (37, number-of-indices),
-    ..range(33, 39),
+    (34, pos-update),
+    (35, number-of-indices),
+    ..range(32, 39),
   ),
 
 
@@ -201,43 +203,11 @@ after applying each rotation in order.
 [-68, -30, 48, -5, 60, -55, -1, -99, 14, -82]
 >>> 
 >>> for r in map(int, xs.replace("L", "-").replace("R", "+").split()):
-...     print(temp)
 ...     temp = (temp + r) % 100
-...     print(temp)
 ...     if temp == 0: count += 1
-...     print(count)
-...     
-50
-82
-0
-82
-52
-0
-52
-0
-1
-0
-95
-1
-95
-55
-1
-55
-0
-2
-0
-99
-2
-99
-0
+...
+>>> print(count)    
 3
-0
-14
-3
-14
-32
-3
->>>
 >>> 
 >>> (lambda xs: (
 ...     lambda pos, c:
@@ -247,8 +217,6 @@ after applying each rotation in order.
 ...          c)[1]
 ... )(50, 0))(xs)
 3
->>> 
->>>
 ```
 ]
 
@@ -267,6 +235,9 @@ after applying each rotation in order.
   result.at(1)
 }
 
+
+
+#zebraw[
 ```typst
 #let count-zeros(xs) = {
   let steps = xs.replace("L", "-").replace("R", "+").split().map(int)
@@ -277,12 +248,47 @@ after applying each rotation in order.
   })
   result.at(1)
 }
-```
+```]
 
-
+#zebraw[
 ```typst
 #count-zeros("L68 L30 R48 L5 R60 L55 L1 L99 R14 L82")
-```
+```]
 
 #count-zeros("L68 L30 R48 L5 R60 L55 L1 L99 R14 L82")
 
+
+
+#[
+  // --- DOCS ---------------------------------------------
+
+  #import "@preview/tidy:0.4.3"
+
+  
+  #let docs = tidy.parse-module(read("day1.typ"))
+  // #tidy.show-module(docs)
+  
+  // #tidy.show-module(docs) //, style: tidy.styles.default)
+  
+  
+  
+  // #set page(width: auto, height: auto, margin: 0em)
+  
+  #import "day1.typ" 
+  
+  #let docs = tidy.parse-module(
+    read("day1.typ"), 
+    scope: (sincx: day1),
+    preamble: "#import sincx: *;"
+  )
+  
+  #set heading(numbering: none)
+  #block(
+    width: 12cm, 
+    fill: luma(255), 
+    inset: 20pt,
+    tidy.show-module(docs, show-outline: false)
+  )
+  // --- END DOCS ---------------------------------------------
+  
+]
