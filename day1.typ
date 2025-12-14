@@ -1,11 +1,13 @@
-/// This function computes the AoC day 1 challenge, $sinc(x)=sin(x)/x$. 
+/// Day 1: Secret Entrance
+/// 
+/// $ ("L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82")^T  -> 3$ 
 ///
 /// ```example
-/// #count-zeros("L68 L30 R48 L5 R60 L55 L1 L99 R14 L82")
+/// #day1("L68 L30 R48 L5 R60 L55 L1 L99 R14 L82")
 /// ```
 ///
 /// -> int
-#let count-zeros(
+#let day1(
   /// The argument 
   /// -> string
   xs
