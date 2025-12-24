@@ -8,6 +8,8 @@
   )
 )
 
+#import "@preview/lovelace:0.3.0": *
+
 #import "@preview/tablem:0.2.0": tablem, three-line-table
 
 #import "@preview/shadowed:0.2.0": shadowed as shadowed-original
@@ -28,13 +30,15 @@
 
 #show raw: set text(font: "Fira Code") 
 #set par(justify: true)
-#set page("a4")
+#set page("a4", height: auto)
 #set text(lang: "en", region: "gb")
 
 
-#title([Advent of Code 2025 #emoji.face])
+#title([#emoji.candle Advent of Code 2025 #emoji.face])
 
 #outline()
+
+#pagebreak()
 
 = day 1
 
@@ -171,7 +175,7 @@ after applying each rotation in order.
 #day1(xs)
 
 
-#rect[
+#shadowed[
   == Docs
 
   #import "@preview/tidy:0.4.3"
@@ -246,22 +250,237 @@ for r in map(int, xs.replace("L", "-").replace("R", "+").split()):
 
 = Day 2: Gift Shop
 
+Where $cal(R)$ is the Set of Ranges R, and $id in R$ being a product identifier. The solution is:
+
+$ sum_(R in cal(R)) sum_(id in R)  cases(
+    id "if" id "is valid",
+    0 "otherwise",
+  ) $
+
+
+
 #zebraw[```py
 from day2 import xs
 
-# [range(*list(map(int, e.split("-")))) for e in xs.split(",")]
-
-ds = [range(*(lambda ys: [ys[0], ys[1] + 1])(list(map(int, e.split("-"))))) for e in xs.split(",")]
+ds = [
+  range(
+    *(lambda ys: [ys[0], ys[1] + 1])(
+      list(map(int, e.split("-")))
+    )
+  )
+  for e in xs.split(",")
+]
 
 
 def p(x: int) -> int:
   x = str(x)
-  
-  if len(x) % 2 != 0:
-    return 0
 
-  # // ist leider nötig, aber muss eh das glieche wie / sein ...
+  if len(x) % 2 != 0: return 0
+
   return 0 if x[:len(x)//2] == x[len(x)//2:] else int(x)
 
 sum(sum(map(p, d)) for d in ds)
 ```]
+
+== Part Two
+
+Now the Predicate changes for whether a product id is valid or not ...
+
+#shadowed[
+  Now, an *ID is invalid if* it is made only of some sequence of *digits repeated at least twice*. So, 12341234 (1234 two times), 123123123 (123 three times), 1212121212 (12 five times), and 1111111 (1 seven times) are all invalid IDs.
+]
+
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [some caption],
+  
+  pseudocode-list(booktabs: true, numbered-title: [PredicateForValidProductIDs])[
+    + input $n in NN$ is the ID that should be checked
+    + $l <- floor(log_10(n)) +1  quad forall n > 0 quad$ is the `len(str(n))`
+    + *for each* $i in [l/2] quad$ where [n] is {1, ..., n}
+      + head $<-$ first i chars of string representation of n
+      + *if* repeat(head, n=$l$ / $i$) == str(n) *then*
+        + *return* $bot$
+      + *end*
+    + *end*
+    + *return* $top$
+  ]
+)
+
+
+$ arrow.b.double $
+
+#zebraw[
+```py
+def p(x: int) -> int:
+  x = str(x)
+  l = len(x)
+
+  for i in range(l // 2):
+    h = x[:i+1]
+    if h * (l // (i+1)) == x:
+      return int(x)
+
+  return 0
+```
+]
+
+
+#pagebreak()
+
+= Day 3: Lobby
+
+
+#zebraw[
+```python
+
+xs = """987654321111111
+811111111111119
+234234234234278
+818181911112111"""
+
+xs = [list(map(int, e)) for e in xs.split()]
+
+
+def day3(xs: list[list[int]]) -> int:
+  def helper(x: list[int]) -> int:
+    temp: int = 0
+    
+    for i, v in enumerate(x):
+         for ii, e in enumerate(x[i+1:]):
+             if int(str(v) + str(e)) > temp:
+                 temp = int(str(v) + str(e))
+
+    return temp
+  
+  return sum(
+    helper(x)
+    for x in xs
+  )
+
+print(f"{ day3(xs) = }")
+```]
+
+
+== Part Tow
+
+#shadowed[
+  The task per row is:
+Given a sequence of digits, select exactly 12 digits, in order, such that the resulting 12 digit number is maximized.
+]
+
+
+#zebraw[```py
+
+from itertools import combinations
+
+
+sum(map(
+  lambda y: max(map(
+    lambda x: int("".join([str(e) for e in x])),
+    list(combinations(y, 12))
+  )),
+  xs
+))
+```]
+
+this is very slow for the big input ...
+
+
+$ arrow.b.double $
+
+#zebraw[```py
+print(f"[INFO] { len(xs) = }, { len(xs[0]) = }")
+
+
+s: int = 0
+
+
+from tqdm import tqdm
+
+for index, y in enumerate(xs):
+  temp: int = 0
+
+  print(f"[INFO] { index = }")
+
+  for x in tqdm(combinations(y, 12)):
+    g = int("".join( map(str, x)))
+
+    if g > temp:
+      temp = g
+
+  s += temp
+
+  print(f"{temp = }")
+
+print(f"final { s = }")
+
+```]
+
+
+#rect[```txt
+[INFO]  len(xs) = 200,  len(xs[0]) = 100
+[INFO]  index = 0
+??????????it [0?:??, ~700000.00it/s]^C
+Traceback (most recent call last):
+  File "/.../day3.py", line 258, in <module>
+    g = int("".join( map(str, x)))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+```]
+
+$  (binom(100, 12) "it") / (700000 "it" / "sec") => approx 1.501 times 10^9 sec => 47.55 "average Gregorian years" ... $
+
+
+
+
+
+This shit takes way to long ...
+
+$ arrow.b.double $
+
+Process digits from left to right, maintaining a stack:
+
+- You may delete at most $n − k$ digits.
+- While the current digit is larger than the last chosen digit, and deletions remain, remove the last digit.
+- Append the current digit.
+- At the end, truncate to length k.
+
+This is optimal and runs in *linear time*
+
+#zebraw[```py
+xs = """987654321111111
+811111111111119
+234234234234278
+818181911112111"""
+
+xs = [list(map(int, e)) for e in xs.split()]
+
+def max_subsequence_value(x: list[int], k: int = 12) -> int:
+    drop = len(x) - k
+    stack: list[int] = []
+
+    for d in x:
+        while drop > 0 and stack and stack[-1] < d:
+            stack.pop()
+            drop -= 1
+        stack.append(d)
+
+    stack = stack[:k]
+
+    val = 0
+    for d in stack:
+        val = val * 10 + d
+    return val
+
+
+def day3(xs: list[list[int]]) -> int:
+    return sum(max_subsequence_value(x, 12) for x in xs)
+
+print(f"{day3(xs) = }")
+```]
+
+runs in $approx 0.02 sec$ for the big input #emoji.face.happy
+
